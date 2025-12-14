@@ -102,27 +102,39 @@ export default class AstraeaStyleTweaksPlugin extends Plugin {
         font-family: ${fontFamily} !important;
       }
       
-      /* LINKS - Editor view (all link types) */
-      .cm-link,
-      .cm-hmd-internal-link,
-      .cm-url,
-      .cm-link-text,
-      a.internal-link,
-      a.external-link {
+      /* LINKS - Source mode editor */
+      .cm-s-obsidian span.cm-link,
+      .cm-s-obsidian span.cm-hmd-internal-link,
+      .cm-s-obsidian span.cm-url {
+        color: ${linkColor} !important;
+      }
+      
+      /* LINKS - Live Preview mode (aggressive targeting) */
+      .markdown-source-view.mod-cm6 .cm-line a,
+      .markdown-source-view.mod-cm6 .cm-line a.internal-link,
+      .markdown-source-view.mod-cm6 .cm-line a.external-link,
+      .markdown-source-view.mod-cm6 a.internal-link,
+      .markdown-source-view.mod-cm6 a.external-link,
+      .cm-content a.internal-link,
+      .cm-content a.external-link,
+      .cm-content a,
+      .is-live-preview .cm-line a,
+      .is-live-preview a.internal-link,
+      .is-live-preview a.external-link {
         color: ${linkColor} !important;
       }
       
       /* LINKS - Reading view */
       .markdown-preview-view .internal-link,
       .markdown-preview-view .external-link,
-      .markdown-preview-view a {
+      .markdown-preview-view a.internal-link,
+      .markdown-preview-view a.external-link {
         color: ${linkColor} !important;
       }
       
-      /* LINKS - Live preview */
-      .is-live-preview .cm-link,
-      .is-live-preview .cm-hmd-internal-link,
-      .is-live-preview .internal-link {
+      /* LINKS - Embedded links and popover previews */
+      .popover .internal-link,
+      .popover .external-link {
         color: ${linkColor} !important;
       }
     `;
