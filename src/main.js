@@ -25,28 +25,10 @@ __export(main_exports, {
 module.exports = __toCommonJS(main_exports);
 var import_obsidian = require("obsidian");
 var HeaderModifierPlugin = class extends import_obsidian.Plugin {
-  async onload() {
+  onload() {
     console.log("Header Modifier Plugin loaded");
-    this.addStyle();
   }
   onunload() {
     console.log("Header Modifier Plugin unloaded");
-  }
-  addStyle() {
-    const style = document.createElement("style");
-    style.id = "header-modifier-style";
-    style.innerHTML = `
-            /* All headers have same font size */
-            .cm-s-obsidian .cm-header,
-            .markdown-preview-view h1,
-            .markdown-preview-view h2,
-            .markdown-preview-view h3,
-            .markdown-preview-view h4,
-            .markdown-preview-view h5,
-            .markdown-preview-view h6 {
-                font-size: 1em !important;
-            }
-        `;
-    document.head.appendChild(style);
   }
 };
