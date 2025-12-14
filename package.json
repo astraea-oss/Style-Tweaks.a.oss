@@ -1,0 +1,19 @@
+{
+  "name": "style-tweaks",
+  "version": "0.0.1",
+  "description": "An Obsidian plugin for tweaking styles",
+  "main": "main.js",
+  "scripts": {
+    "build": "node esbuild.config.mjs > build.log 2>&1",
+    "dev": "node esbuild.config.mjs --watch"
+  },
+  "keywords": ["obsidian", "plugin"],
+  "author": "astraea-oss",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.27.1",
+    "typescript": "^5.2.2",
+    "@types/node": "^20.7.1",
+    "obsidian": "^1.2.3"
+  }
+}
