@@ -18,9 +18,25 @@ export default class HeaderModifierPlugin extends Plugin {
       .markdown-preview-view h5,
       .markdown-preview-view h6 {
         font-size: 1em !important;
+        line-height: 1.5 !important;
+        margin-top: 0.5em !important;
+        margin-bottom: 0.5em !important;
       }
       
-      /* Remove font size scaling from headings in editor */
+      /* Remove font size scaling from headings in editor - target the line */
+      .cm-line.HyperMD-header-1,
+      .cm-line.HyperMD-header-2,
+      .cm-line.HyperMD-header-3,
+      .cm-line.HyperMD-header-4,
+      .cm-line.HyperMD-header-5,
+      .cm-line.HyperMD-header-6 {
+        font-size: 1em !important;
+        line-height: 1.5 !important;
+        padding-top: 0.25em !important;
+        padding-bottom: 0.25em !important;
+      }
+      
+      /* Also target the header spans */
       .cm-header-1,
       .cm-header-2,
       .cm-header-3,
@@ -41,6 +57,12 @@ export default class HeaderModifierPlugin extends Plugin {
       }
       
       /* Add purple highlight color to headings in editor */
+      .cm-line.HyperMD-header-1,
+      .cm-line.HyperMD-header-2,
+      .cm-line.HyperMD-header-3,
+      .cm-line.HyperMD-header-4,
+      .cm-line.HyperMD-header-5,
+      .cm-line.HyperMD-header-6,
       .cm-header-1,
       .cm-header-2,
       .cm-header-3,
