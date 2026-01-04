@@ -49,6 +49,36 @@ export class AstraeaSettingTab extends PluginSettingTab {
         containerEl.createEl('h3', { text: 'App Styling' });
 
         new Setting(containerEl)
+            .setName('General font size')
+            .setDesc('Base font size for all text (e.g., 16px, 1.2em, leave empty for default)')
+            .addText(text => text
+                .setPlaceholder('e.g., 16px')
+                .setValue(this.plugin.settings.generalFontSize)
+                .onChange(async (value) => {
+                    this.plugin.settings.generalFontSize = value;
+                    await this.plugin.saveSettings();
+                })
+            );
+            new Setting(containerEl)
+            .setName('General font color')
+            .setDesc('Base text color for the app')
+            .addColorPicker(color => color
+                .setValue(this.plugin.settings.generalFontColor || '#000000')
+                .onChange(async (value) => {
+                    this.plugin.settings.generalFontColor = value;
+                    await this.plugin.saveSettings();
+                })
+            )
+            .addExtraButton(button => button
+                .setIcon('reset')
+                .setTooltip('Clear color')
+                .onClick(async () => {
+                    this.plugin.settings.generalFontColor = '';
+                    await this.plugin.saveSettings();
+                    this.display();
+                })
+            );
+        new Setting(containerEl)
             .setName('General font')
             .setDesc('Font family for the entire app (leave empty for default)')
             .addText(text => text
@@ -155,7 +185,7 @@ export class AstraeaSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Header & title color')
-            .setDesc('Color for all headers (h1-h6)')
+            .setDesc('Color for all headers (h1-h6) and file title')
             .addColorPicker(color => color
                 .setValue(this.plugin.settings.headerTitleColor || '#000000')
                 .onChange(async (value) => {
@@ -175,7 +205,7 @@ export class AstraeaSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Header & title font')
-            .setDesc('Font family for headers (leave empty for default)')
+            .setDesc('Font family for headers and file title (leave empty for default)')
             .addText(text => text
                 .setPlaceholder('e.g., Georgia, Times New Roman')
                 .setValue(this.plugin.settings.headerTitleFont)
@@ -186,8 +216,19 @@ export class AstraeaSettingTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName('Header & title size multiplier')
-            .setDesc('Adjust header sizes (e.g., 1.1 for 110%, leave empty for default)')
+            .setName('Enable header sizing')
+            .setDesc('Make headers progressively larger (h1 biggest, h6 smallest). When off, all headers are same size as body text.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableHeaderSizing)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableHeaderSizing = value;
+                    await this.plugin.saveSettings();
+                })
+            );
+
+        new Setting(containerEl)
+            .setName('Header size multiplier')
+            .setDesc('Adjust header sizes when sizing is enabled (e.g., 1.1 for 110%, leave empty for default)')
             .addText(text => text
                 .setPlaceholder('e.g., 1.1')
                 .setValue(this.plugin.settings.headerTitleSize)
@@ -275,12 +316,12 @@ export class AstraeaSettingTab extends PluginSettingTab {
         containerEl.createEl('h3', { text: 'Code Formatting' });
 
         new Setting(containerEl)
-            .setName('Code block text color')
-            .setDesc('Color for text in fenced code blocks')
+            .setName('Code block background color')
+            .setDesc('Background color for fenced code blocks')
             .addColorPicker(color => color
-                .setValue(this.plugin.settings.codeNormalColor || '#000000')
+                .setValue(this.plugin.settings.codeBlockBgColor || '#f5f5f5')
                 .onChange(async (value) => {
-                    this.plugin.settings.codeNormalColor = value;
+                    this.plugin.settings.codeBlockBgColor = value;
                     await this.plugin.saveSettings();
                 })
             )
@@ -288,7 +329,7 @@ export class AstraeaSettingTab extends PluginSettingTab {
                 .setIcon('reset')
                 .setTooltip('Clear color')
                 .onClick(async () => {
-                    this.plugin.settings.codeNormalColor = '';
+                    this.plugin.settings.codeBlockBgColor = '';
                     await this.plugin.saveSettings();
                     this.display();
                 })
@@ -335,17 +376,6 @@ export class AstraeaSettingTab extends PluginSettingTab {
             );
 
         containerEl.createEl('h3', { text: 'Code Block Cosmetics' });
-
-        new Setting(containerEl)
-            .setName('Hide fence lines')
-            .setDesc('Hide the opening and closing ``` lines in code blocks')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.hideFenceLines)
-                .onChange(async (value) => {
-                    this.plugin.settings.hideFenceLines = value;
-                    await this.plugin.saveSettings();
-                })
-            );
 
         new Setting(containerEl)
             .setName('Show language badge')

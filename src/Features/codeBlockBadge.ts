@@ -1,6 +1,5 @@
 /**
- * Adds language badges to code blocks in Reading View and Source Mode
- * (Live Preview already has built-in language badges)
+ * Adds language badges to code blocks in Reading View, Source Mode, and Live Preview
  */
 
 export function addLangBadges(): void {
@@ -20,10 +19,14 @@ export function addLangBadges(): void {
         pre.appendChild(badge);
     });
 
-    // Source Mode - HyperMD-codeblock spans
+    // Source Mode - HyperMD-codeblock-begin spans
     document.querySelectorAll('.markdown-source-view .HyperMD-codeblock-begin').forEach((beginEl) => {
-        const container = beginEl.parentElement;
-        if (!container || container.querySelector('.astraea-lang-badge')) return;
+        const container = beginEl.closest('.cm-line');
+        if (!container) return;
+        
+        // Check if we already added a badge to this code block
+        const codeBlockParent = container.parentElement;
+        if (!codeBlockParent || codeBlockParent.querySelector('.astraea-lang-badge')) return;
 
         // Extract language from the fence line text
         const fenceText = beginEl.textContent || '';
@@ -33,9 +36,30 @@ export function addLangBadges(): void {
         const lang = langMatch[1];
         const badge = createBadge(lang);
         
-        // Position relative to the code block container
-        container.style.position = 'relative';
-        container.appendChild(badge);
+        // Add to the parent container that wraps the whole code block
+        codeBlockParent.style.position = 'relative';
+        codeBlockParent.appendChild(badge);
+    });
+
+    // Live Preview - Look for code blocks with language classes
+    document.querySelectorAll('.cm-editor .cm-line.HyperMD-codeblock-begin').forEach((beginEl) => {
+        // Find the parent that contains the whole code block
+        let codeBlockContainer = beginEl.parentElement;
+        while (codeBlockContainer && !codeBlockContainer.classList.contains('cm-content')) {
+            if (codeBlockContainer.querySelector('.astraea-lang-badge')) return; // Already has badge
+            
+            // Extract language from the fence line
+            const fenceText = beginEl.textContent || '';
+            const langMatch = fenceText.match(/^```(\S+)/);
+            if (langMatch) {
+                const lang = langMatch[1];
+                const badge = createBadge(lang);
+                codeBlockContainer.style.position = 'relative';
+                codeBlockContainer.appendChild(badge);
+                return;
+            }
+            codeBlockContainer = codeBlockContainer.parentElement;
+        }
     });
 }
 

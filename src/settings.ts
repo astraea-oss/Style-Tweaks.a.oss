@@ -3,6 +3,8 @@ export interface AstraeaSettings {
     pluginEnabled: boolean;
 
     // App styling
+    generalFontSize: string;
+    generalFontColor: string;
     generalFont: string;
     backgroundPrimary: string;
     backgroundSecondary: string;
@@ -13,6 +15,7 @@ export interface AstraeaSettings {
     // Editor & Reader - Headers & Titles
     headerTitleColor: string;
     headerTitleFont: string;
+    enableHeaderSizing: boolean;
     headerTitleSize: string;
     headerFontWeight: string;
 
@@ -22,12 +25,11 @@ export interface AstraeaSettings {
     linkUnderline: boolean;
 
     // Back-tick formatting
-    codeNormalColor: string;
+    codeBlockBgColor: string;
     backtickFont: string;
     backtickBg: string;
 
     // Code block cosmetics
-    hideFenceLines: boolean;
     showCodeBlockBadge: boolean;
 
     // Typography
@@ -39,6 +41,8 @@ export const DEFAULT_SETTINGS: AstraeaSettings = {
     pluginEnabled: true,
 
     // App styling
+    generalFontSize: '',
+    generalFontColor: '',
     generalFont: '',
     backgroundPrimary: '',
     backgroundSecondary: '',
@@ -49,7 +53,8 @@ export const DEFAULT_SETTINGS: AstraeaSettings = {
     // Editor & Reader - Headers & Titles
     headerTitleColor: '',
     headerTitleFont: '',
-    headerTitleSize: '',
+    enableHeaderSizing: false,
+    headerTitleSize: '1',
     headerFontWeight: 'bold',
 
     // Links
@@ -58,12 +63,11 @@ export const DEFAULT_SETTINGS: AstraeaSettings = {
     linkUnderline: true,
 
     // Back-tick formatting
-    codeNormalColor: '',
+    codeBlockBgColor: '',
     backtickFont: '',
     backtickBg: '',
 
     // Code block cosmetics
-    hideFenceLines: false,
     showCodeBlockBadge: false,
 
     // Typography
