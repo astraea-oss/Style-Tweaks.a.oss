@@ -59,9 +59,10 @@ export class AstraeaSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 })
             );
-            new Setting(containerEl)
+
+        new Setting(containerEl)
             .setName('General font color')
-            .setDesc('Base text color for the app')
+            .setDesc('Default text color for all content')
             .addColorPicker(color => color
                 .setValue(this.plugin.settings.generalFontColor || '#000000')
                 .onChange(async (value) => {
@@ -78,6 +79,7 @@ export class AstraeaSettingTab extends PluginSettingTab {
                     this.display();
                 })
             );
+
         new Setting(containerEl)
             .setName('General font')
             .setDesc('Font family for the entire app (leave empty for default)')
@@ -216,8 +218,20 @@ export class AstraeaSettingTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
+            .setName('Header font size')
+            .setDesc('Font size for all headers when sizing is disabled (e.g., 18px, 1.2em, leave empty for body text size)')
+            .addText(text => text
+                .setPlaceholder('e.g., 18px')
+                .setValue(this.plugin.settings.headerFontSize)
+                .onChange(async (value) => {
+                    this.plugin.settings.headerFontSize = value;
+                    await this.plugin.saveSettings();
+                })
+            );
+
+        new Setting(containerEl)
             .setName('Enable header sizing')
-            .setDesc('Make headers progressively larger (h1 biggest, h6 smallest). When off, all headers are same size as body text.')
+            .setDesc('Make headers progressively larger (h1 biggest, h6 smallest). When off, all headers use the header font size above.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.enableHeaderSizing)
                 .onChange(async (value) => {
@@ -379,7 +393,7 @@ export class AstraeaSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Show language badge')
-            .setDesc('Display language badge in code blocks (Reading View & Source Mode)')
+            .setDesc('Display language badge in code blocks (Reading View, Source Mode & Live Preview)')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showCodeBlockBadge)
                 .onChange(async (value) => {

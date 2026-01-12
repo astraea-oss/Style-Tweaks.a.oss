@@ -4,22 +4,28 @@ export function buildCSS(settings: AstraeaSettings): string {
     const css: string[] = [];
 
     // App Styling
+    if (settings.generalFontSize) {
+        css.push(`
+.markdown-preview-view,
+.markdown-source-view,
+.markdown-reading-view,
+.cm-content,
+body {
+    font-size: ${settings.generalFontSize} !important;
+}
+        `);
+    }
+
     if (settings.generalFontColor) {
         css.push(`
-    /* General text colour - every mode */
-    body,
-    .app-container,
-    .markdown-preview-view,
-    .markdown-reading-view,
-    .markdown-source-view .cm-line,
-    .cm-s-obsidian .cm-line,
-    .markdown-source-view.is-live-preview .cm-line,
-    .cm-content,
-    .view-content,
-    .inline-title,
-    .markdown-rendered p {
-        color: ${settings.generalFontColor} !important;
-    }
+/* General text color for all views */
+.markdown-preview-view,
+.markdown-source-view .cm-line,
+.markdown-reading-view,
+.cm-content,
+body {
+    color: ${settings.generalFontColor} !important;
+}
         `);
     }
 
@@ -118,13 +124,14 @@ body {
         `);
     }
 
-    // Make all headers same size as body text by default
+    // Make all headers same size (either custom or body text size) by default
     if (!settings.enableHeaderSizing) {
+        const headerSize = settings.headerFontSize || '1em';
         css.push(`
 /* Reading View */
 .markdown-preview-view h1, .markdown-preview-view h2, .markdown-preview-view h3,
 .markdown-preview-view h4, .markdown-preview-view h5, .markdown-preview-view h6 {
-    font-size: 1em !important;
+    font-size: ${headerSize} !important;
     line-height: inherit !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
@@ -137,7 +144,7 @@ body {
 .markdown-source-view .cm-header-4,
 .markdown-source-view .cm-header-5,
 .markdown-source-view .cm-header-6 {
-    font-size: 1em !important;
+    font-size: ${headerSize} !important;
     line-height: inherit !important;
 }
 
@@ -148,7 +155,7 @@ body {
 .cm-s-obsidian .HyperMD-header-4,
 .cm-s-obsidian .HyperMD-header-5,
 .cm-s-obsidian .HyperMD-header-6 {
-    font-size: 1em !important;
+    font-size: ${headerSize} !important;
     line-height: inherit !important;
 }
 
@@ -159,8 +166,13 @@ body {
 .cm-line.HyperMD-header-4,
 .cm-line.HyperMD-header-5,
 .cm-line.HyperMD-header-6 {
-    font-size: 1em !important;
+    font-size: ${headerSize} !important;
     line-height: inherit !important;
+}
+
+/* File title */
+.inline-title {
+    font-size: ${headerSize} !important;
 }
         `);
     }
@@ -222,20 +234,9 @@ body {
     // Links
     if (settings.internalLinkColor) {
         css.push(`
-/* Internal links - Reading View */
-.markdown-preview-view .internal-link {
-    color: ${settings.internalLinkColor} !important;
-}
-
-/* Internal links - Source Mode (raw markdown) */
-.markdown-source-view:not(.is-live-preview) .cm-hmd-internal-link {
-    color: ${settings.internalLinkColor} !important;
-}
-
-/* Internal links - Live Preview (rendered links) */
-.markdown-source-view.is-live-preview span.cm-hmd-internal-link,
-.markdown-source-view.is-live-preview span.cm-hmd-internal-link a,
-.markdown-source-view.is-live-preview span.cm-hmd-internal-link a.cm-underline {
+/* Internal links - all parts */
+.markdown-preview-view .internal-link,
+.markdown-source-view .cm-hmd-internal-link {
     color: ${settings.internalLinkColor} !important;
 }
         `);
@@ -248,21 +249,27 @@ body {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* External links - Source Mode (raw markdown, not Live Preview) - exclude code blocks */
-.markdown-source-view:not(.is-live-preview) .cm-line:not(.HyperMD-codeblock) .cm-link,
-.markdown-source-view:not(.is-live-preview) .cm-line:not(.HyperMD-codeblock) .cm-url {
+/* External links - Source Mode (not Live Preview) */
+.markdown-source-view:not(.is-live-preview) .cm-link,
+.markdown-source-view:not(.is-live-preview) .cm-url,
+.markdown-source-view:not(.is-live-preview) .cm-string.cm-url {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* External links - Live Preview (rendered links) */
-.markdown-source-view.is-live-preview span.cm-link:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview span.cm-link:not(.cm-hmd-internal-link) a,
-.markdown-source-view.is-live-preview span.cm-link:not(.cm-hmd-internal-link) a.cm-underline {
-    color: ${settings.externalLinkColor} !important;
-}
-
-/* External links - Live Preview rendered in markdown-rendered context */
+/* External links - Live Preview - All parts of [text](url) */
+.markdown-source-view.is-live-preview .cm-link:not(.cm-hmd-internal-link),
+.markdown-source-view.is-live-preview .cm-url:not(.cm-hmd-internal-link),
+.markdown-source-view.is-live-preview .cm-string:not(.cm-hmd-internal-link),
+.markdown-source-view.is-live-preview .cm-formatting-link:not(.cm-hmd-internal-link),
+.markdown-source-view.is-live-preview .cm-formatting-link-string:not(.cm-hmd-internal-link),
+/* Live Preview - rendered link */
 .markdown-rendered .external-link {
+    color: ${settings.externalLinkColor} !important;
+}
+
+/* Live Preview CM6 - be very specific */
+.cm-editor.cm-s-obsidian .cm-link:not(.cm-hmd-internal-link):not(.cm-formatting-link-start):not(.cm-formatting-link-end),
+.cm-editor.cm-s-obsidian .cm-url:not(.cm-hmd-internal-link) {
     color: ${settings.externalLinkColor} !important;
 }
         `);
@@ -270,21 +277,9 @@ body {
 
     if (!settings.linkUnderline) {
         css.push(`
-/* Remove underlines - Reading View */
-.markdown-preview-view a {
-    text-decoration: none !important;
-}
-
-/* Remove underlines - Source Mode */
+.markdown-preview-view a,
 .markdown-source-view .cm-url,
 .markdown-source-view .cm-hmd-internal-link {
-    text-decoration: none !important;
-}
-
-/* Remove underlines - Live Preview rendered links */
-.markdown-source-view.is-live-preview span.cm-link a,
-.markdown-source-view.is-live-preview span.cm-hmd-internal-link a,
-.markdown-source-view.is-live-preview a.cm-underline {
     text-decoration: none !important;
 }
         `);

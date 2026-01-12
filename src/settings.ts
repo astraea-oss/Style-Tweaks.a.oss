@@ -15,6 +15,7 @@ export interface AstraeaSettings {
     // Editor & Reader - Headers & Titles
     headerTitleColor: string;
     headerTitleFont: string;
+    headerFontSize: string;
     enableHeaderSizing: boolean;
     headerTitleSize: string;
     headerFontWeight: string;
@@ -53,6 +54,7 @@ export const DEFAULT_SETTINGS: AstraeaSettings = {
     // Editor & Reader - Headers & Titles
     headerTitleColor: '',
     headerTitleFont: '',
+    headerFontSize: '',
     enableHeaderSizing: false,
     headerTitleSize: '1',
     headerFontWeight: 'bold',

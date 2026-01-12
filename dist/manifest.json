@@ -1,0 +1,10 @@
+{
+  "id": "StyleTweaks.a.oss",
+  "name": "StyleTweaks",
+  "version": "0.14",
+  "minAppVersion": "1.0.0",
+  "description": "A Plugin for tweaking your Obsidian style",
+  "author": "Astraea.oss",
+  "authorUrl": "https://github.com/astraea-oss",
+  "isDesktopOnly": false
+}
