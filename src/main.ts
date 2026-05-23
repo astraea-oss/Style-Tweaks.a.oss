@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { EventRef, Plugin } from 'obsidian';
 import { AstraeaSettings, DEFAULT_SETTINGS } from './settings';
 import { AstraeaSettingTab } from './SettingsTab';
 import { buildCSS } from './features/_css';
@@ -7,6 +7,7 @@ import { addLangBadges, removeLangBadges } from './features/codeBlockBadge';
 export default class AstraeaPlugin extends Plugin {
     settings: AstraeaSettings;
     private styleEl: HTMLStyleElement | null = null;
+    private badgeEventRef: EventRef | null = null;
 
     async onload() {
         await this.loadSettings();
@@ -18,13 +19,7 @@ export default class AstraeaPlugin extends Plugin {
         this.applyStyles();
 
         // Register code block badge handler
-        if (this.settings.showCodeBlockBadge) {
-            this.registerEvent(
-                this.app.workspace.on('layout-change', () => addLangBadges())
-            );
-            // Initial badge injection
-            addLangBadges();
-        }
+        this.updateBadgeHandler();
     }
 
     onunload() {
@@ -43,11 +38,7 @@ export default class AstraeaPlugin extends Plugin {
         this.applyStyles();
         
         // Handle badge toggle
-        if (this.settings.showCodeBlockBadge) {
-            addLangBadges();
-        } else {
-            removeLangBadges();
-        }
+        this.updateBadgeHandler();
     }
 
     applyStyles() {
@@ -71,5 +62,23 @@ export default class AstraeaPlugin extends Plugin {
             this.styleEl.remove();
             this.styleEl = null;
         }
+    }
+
+    private updateBadgeHandler() {
+        if (!this.settings.showCodeBlockBadge) {
+            if (this.badgeEventRef) {
+                this.app.workspace.offref(this.badgeEventRef);
+                this.badgeEventRef = null;
+            }
+            removeLangBadges();
+            return;
+        }
+
+        if (!this.badgeEventRef) {
+            this.badgeEventRef = this.app.workspace.on('layout-change', () => addLangBadges());
+            this.registerEvent(this.badgeEventRef);
+        }
+
+        addLangBadges();
     }
 }

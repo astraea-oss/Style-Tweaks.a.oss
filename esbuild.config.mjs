@@ -1,7 +1,8 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
-import { copyFileSync, mkdirSync } from "fs";
+import { copyFileSync, existsSync, mkdirSync, rmSync } from "fs";
+import { resolve } from "path";
 
 const banner =
 `/*
@@ -12,6 +13,11 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = (process.argv[2] === 'production');
 
+if (process.argv[2] === 'clean') {
+	rmSync('dist', { recursive: true, force: true });
+	process.exit(0);
+}
+
 // Ensure dist directory exists
 mkdirSync('dist', { recursive: true });
 
@@ -19,7 +25,7 @@ const context = await esbuild.context({
 	banner: {
 		js: banner,
 	},
-	entryPoints: ['src/main.ts'],
+	entryPoints: [resolve('src/main.ts')],
 	bundle: true,
 	external: [
 		'obsidian',
@@ -41,36 +47,31 @@ const context = await esbuild.context({
 	logLevel: "info",
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
-	outfile: 'dist/main.js',  // Output to dist folder
+	outfile: resolve('dist/main.js'),
 });
 
 if (prod) {
 	await context.rebuild();
-	
-	// Copy manifest and styles to dist
+
 	copyFileSync('manifest.json', 'dist/manifest.json');
-	console.log('✓ Copied manifest.json to dist/');
-	
-	// Copy styles.css if it exists
-	try {
+	console.log('Copied manifest.json to dist/');
+
+	if (existsSync('styles.css')) {
 		copyFileSync('styles.css', 'dist/styles.css');
-		console.log('✓ Copied styles.css to dist/');
-	} catch (e) {
-		console.log('ℹ No styles.css found (optional)');
+		console.log('Copied styles.css to dist/');
+	} else {
+		console.log('No styles.css found (optional)');
 	}
-	
-	console.log('\n✓ Production build complete! Files ready in dist/ folder');
+
+	console.log('\nProduction build complete. Files ready in dist/ folder');
 	process.exit(0);
 } else {
 	await context.watch();
-	
-	// Copy files for dev mode too
+
 	copyFileSync('manifest.json', 'dist/manifest.json');
-	try {
+	if (existsSync('styles.css')) {
 		copyFileSync('styles.css', 'dist/styles.css');
-	} catch (e) {
-		// styles.css is optional
 	}
-	
-	console.log("👀 Watching for changes...");
+
+	console.log("Watching for changes...");
 }

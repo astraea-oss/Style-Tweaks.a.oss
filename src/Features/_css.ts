@@ -234,9 +234,19 @@ body {
     // Links
     if (settings.internalLinkColor) {
         css.push(`
-/* Internal links - all parts */
-.markdown-preview-view .internal-link,
+/* Internal links - Reading View */
+.markdown-preview-view .internal-link {
+    color: ${settings.internalLinkColor} !important;
+}
+
+/* Internal links - Source Mode */
 .markdown-source-view .cm-hmd-internal-link {
+    color: ${settings.internalLinkColor} !important;
+}
+
+/* Internal links - Live Preview (span and anchor inside) */
+.markdown-source-view.is-live-preview .cm-hmd-internal-link,
+.markdown-source-view.is-live-preview .cm-hmd-internal-link a.cm-underline {
     color: ${settings.internalLinkColor} !important;
 }
         `);
@@ -249,27 +259,25 @@ body {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* External links - Source Mode (not Live Preview) */
+/* External links - Source Mode (editing raw markdown) */
 .markdown-source-view:not(.is-live-preview) .cm-link,
-.markdown-source-view:not(.is-live-preview) .cm-url,
-.markdown-source-view:not(.is-live-preview) .cm-string.cm-url {
+.markdown-source-view:not(.is-live-preview) .cm-url {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* External links - Live Preview - All parts of [text](url) */
-.markdown-source-view.is-live-preview .cm-link:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-url:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-string:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-formatting-link:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-formatting-link-string:not(.cm-hmd-internal-link),
-/* Live Preview - rendered link */
-.markdown-rendered .external-link {
+/* External links - Live Preview */
+/* Target the span wrapper (but NOT internal links) */
+.markdown-source-view.is-live-preview .cm-link:not(.cm-hmd-internal-link) {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* Live Preview CM6 - be very specific */
-.cm-editor.cm-s-obsidian .cm-link:not(.cm-hmd-internal-link):not(.cm-formatting-link-start):not(.cm-formatting-link-end),
-.cm-editor.cm-s-obsidian .cm-url:not(.cm-hmd-internal-link) {
+/* Target the actual anchor tag inside (but NOT internal links) */
+.markdown-source-view.is-live-preview .cm-link:not(.cm-hmd-internal-link) a.cm-underline {
+    color: ${settings.externalLinkColor} !important;
+}
+
+/* Also target the URL part in parentheses */
+.markdown-source-view.is-live-preview .cm-url {
     color: ${settings.externalLinkColor} !important;
 }
         `);

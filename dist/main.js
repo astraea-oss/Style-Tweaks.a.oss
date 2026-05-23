@@ -313,7 +313,7 @@ var AstraeaSettingTab = class extends import_obsidian.PluginSettingTab {
       const text = await file.text();
       try {
         const imported = JSON.parse(text);
-        this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS, imported);
+        this.plugin.settings = normalizeSettings(imported);
         await this.plugin.saveSettings();
         this.display();
       } catch (err) {
@@ -330,6 +330,19 @@ var AstraeaSettingTab = class extends import_obsidian.PluginSettingTab {
     }).open();
   }
 };
+function normalizeSettings(imported) {
+  const settings = Object.assign({}, DEFAULT_SETTINGS);
+  if (!imported || typeof imported !== "object") {
+    return settings;
+  }
+  for (const key of Object.keys(DEFAULT_SETTINGS)) {
+    const value = imported[key];
+    if (typeof value === typeof DEFAULT_SETTINGS[key]) {
+      settings[key] = value;
+    }
+  }
+  return settings;
+}
 var ConfirmResetModal = class extends import_obsidian.Modal {
   constructor(app, onConfirm) {
     super(app);
@@ -574,9 +587,19 @@ body {
   }
   if (settings.internalLinkColor) {
     css.push(`
-/* Internal links - all parts */
-.markdown-preview-view .internal-link,
+/* Internal links - Reading View */
+.markdown-preview-view .internal-link {
+    color: ${settings.internalLinkColor} !important;
+}
+
+/* Internal links - Source Mode */
 .markdown-source-view .cm-hmd-internal-link {
+    color: ${settings.internalLinkColor} !important;
+}
+
+/* Internal links - Live Preview (span and anchor inside) */
+.markdown-source-view.is-live-preview .cm-hmd-internal-link,
+.markdown-source-view.is-live-preview .cm-hmd-internal-link a.cm-underline {
     color: ${settings.internalLinkColor} !important;
 }
         `);
@@ -588,27 +611,25 @@ body {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* External links - Source Mode (not Live Preview) */
+/* External links - Source Mode (editing raw markdown) */
 .markdown-source-view:not(.is-live-preview) .cm-link,
-.markdown-source-view:not(.is-live-preview) .cm-url,
-.markdown-source-view:not(.is-live-preview) .cm-string.cm-url {
+.markdown-source-view:not(.is-live-preview) .cm-url {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* External links - Live Preview - All parts of [text](url) */
-.markdown-source-view.is-live-preview .cm-link:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-url:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-string:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-formatting-link:not(.cm-hmd-internal-link),
-.markdown-source-view.is-live-preview .cm-formatting-link-string:not(.cm-hmd-internal-link),
-/* Live Preview - rendered link */
-.markdown-rendered .external-link {
+/* External links - Live Preview */
+/* Target the span wrapper (but NOT internal links) */
+.markdown-source-view.is-live-preview .cm-link:not(.cm-hmd-internal-link) {
     color: ${settings.externalLinkColor} !important;
 }
 
-/* Live Preview CM6 - be very specific */
-.cm-editor.cm-s-obsidian .cm-link:not(.cm-hmd-internal-link):not(.cm-formatting-link-start):not(.cm-formatting-link-end),
-.cm-editor.cm-s-obsidian .cm-url:not(.cm-hmd-internal-link) {
+/* Target the actual anchor tag inside (but NOT internal links) */
+.markdown-source-view.is-live-preview .cm-link:not(.cm-hmd-internal-link) a.cm-underline {
+    color: ${settings.externalLinkColor} !important;
+}
+
+/* Also target the URL part in parentheses */
+.markdown-source-view.is-live-preview .cm-url {
     color: ${settings.externalLinkColor} !important;
 }
         `);
@@ -794,17 +815,13 @@ var AstraeaPlugin = class extends import_obsidian2.Plugin {
   constructor() {
     super(...arguments);
     this.styleEl = null;
+    this.badgeEventRef = null;
   }
   async onload() {
     await this.loadSettings();
     this.addSettingTab(new AstraeaSettingTab(this.app, this));
     this.applyStyles();
-    if (this.settings.showCodeBlockBadge) {
-      this.registerEvent(
-        this.app.workspace.on("layout-change", () => addLangBadges())
-      );
-      addLangBadges();
-    }
+    this.updateBadgeHandler();
   }
   onunload() {
     this.removeStyles();
@@ -816,11 +833,7 @@ var AstraeaPlugin = class extends import_obsidian2.Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
     this.applyStyles();
-    if (this.settings.showCodeBlockBadge) {
-      addLangBadges();
-    } else {
-      removeLangBadges();
-    }
+    this.updateBadgeHandler();
   }
   applyStyles() {
     if (!this.settings.pluginEnabled) {
@@ -838,5 +851,20 @@ var AstraeaPlugin = class extends import_obsidian2.Plugin {
       this.styleEl.remove();
       this.styleEl = null;
     }
+  }
+  updateBadgeHandler() {
+    if (!this.settings.showCodeBlockBadge) {
+      if (this.badgeEventRef) {
+        this.app.workspace.offref(this.badgeEventRef);
+        this.badgeEventRef = null;
+      }
+      removeLangBadges();
+      return;
+    }
+    if (!this.badgeEventRef) {
+      this.badgeEventRef = this.app.workspace.on("layout-change", () => addLangBadges());
+      this.registerEvent(this.badgeEventRef);
+    }
+    addLangBadges();
   }
 };

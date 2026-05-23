@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting, Modal } from 'obsidian';
 import AstraeaPlugin from './main';
-import { DEFAULT_SETTINGS } from './settings';
+import { AstraeaSettings, DEFAULT_SETTINGS } from './settings';
 
 export class AstraeaSettingTab extends PluginSettingTab {
     plugin: AstraeaPlugin;
@@ -439,7 +439,7 @@ export class AstraeaSettingTab extends PluginSettingTab {
             const text = await file.text();
             try {
                 const imported = JSON.parse(text);
-                this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS, imported);
+                this.plugin.settings = normalizeSettings(imported);
                 await this.plugin.saveSettings();
                 this.display();
             } catch (err) {
@@ -456,6 +456,22 @@ export class AstraeaSettingTab extends PluginSettingTab {
             this.display();
         }).open();
     }
+}
+
+function normalizeSettings(imported: unknown): AstraeaSettings {
+    const settings = Object.assign({}, DEFAULT_SETTINGS);
+    if (!imported || typeof imported !== 'object') {
+        return settings;
+    }
+
+    for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof AstraeaSettings>) {
+        const value = (imported as Partial<AstraeaSettings>)[key];
+        if (typeof value === typeof DEFAULT_SETTINGS[key]) {
+            (settings[key] as typeof value) = value;
+        }
+    }
+
+    return settings;
 }
 
 class ConfirmResetModal extends Modal {
